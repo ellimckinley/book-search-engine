@@ -17,16 +17,22 @@ export function authMiddleware({ req }: { req: any }) {
   let token = req.headers.authorization || '';
 
   if (token.startsWith('Bearer ')) {
-    token = token.split(' ')[1]; // Remove 'Bearer'
+    token = token.split(' ')[1];
   }
 
   try {
     if (token) {
-      const user = jwt.verify(token, secretKey) as JwtPayload;
-      return { user };
+      console.log('🔑 JWT Secret in use:', secretKey);
+      const decoded = jwt.verify(token, secretKey) as JwtPayload;
+      console.log('✅ Token decoded:', decoded); // 👈 Add this line
+      return { user: decoded };
     }
   } catch (err) {
-    console.warn('Invalid token');
+    if (err instanceof Error) {
+      console.warn('❌ Invalid token:', err.message);
+    } else {
+      console.warn('❌ Invalid token:', err);
+    }
   }
 
   return { user: null };
@@ -34,6 +40,7 @@ export function authMiddleware({ req }: { req: any }) {
 
 // Used for login/signup
 export function signToken(user: { _id: unknown; username: string; email: string }) {
+  console.log('🔑 JWT Secret in use:', secretKey);
   return jwt.sign(
     { _id: user._id, username: user.username, email: user.email },
     secretKey,

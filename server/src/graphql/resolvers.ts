@@ -51,7 +51,7 @@ const resolvers = {
         saveBook: async (
             _parent: unknown,
             args: {
-                bookData: {
+                bookInput: {
                     bookId: string;
                     authors?: string[];
                     description?: string;
@@ -65,7 +65,7 @@ const resolvers = {
             if (!context.user) throw new AuthenticationError('Login required');
             return await User.findByIdAndUpdate(
                 context.user._id,
-                { $addToSet: { savedBooks: args.bookData } },
+                { $addToSet: { savedBooks: args.bookInput } },
                 { new: true, runValidators: true }
             );
         },

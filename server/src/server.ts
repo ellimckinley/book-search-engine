@@ -1,12 +1,15 @@
 import express from 'express';
 import path from 'node:path';
 import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { expressMiddleware } from '@apollo/server/express4';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
 
-import db from './config/connection.js';
-import { authMiddleware } from './services/auth.js'; // <-- make sure this path matches
+import { connectToDatabase } from './config/connection.js';
+import { authMiddleware } from './services/auth.js';
 import typeDefs from './graphql/typeDefs.js';
 import resolvers from './graphql/resolvers.js';
 
@@ -14,13 +17,13 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 console.log('🔧 Server file loaded');
-// Apollo Server setup
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  plugins: [ApolloServerPluginLandingPageLocalDefault()],
 });
 
-// Start Apollo Server
 async function startApolloServer() {
   console.log('🔧 Apollo Server setup starting');
   await server.start();
@@ -30,13 +33,10 @@ async function startApolloServer() {
   app.use(bodyParser.json());
 
   console.log('🔧 Applying GraphQL middleware...');
-
-  // Attach Apollo middleware with custom auth context
   app.use('/graphql', expressMiddleware(server, {
-    context: async (args) => await authMiddleware(args),
+    context: async ({ req }) => authMiddleware({ req }),
   }));
 
-  // Serve static assets in production
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static(path.join(__dirname, '../client/dist')));
     app.get('*', (_, res) =>
@@ -44,13 +44,20 @@ async function startApolloServer() {
     );
   }
 
-  console.log('📡 Waiting for DB connection...');
-  db.once('open', () => {
-    console.log('✅ DB connected');
-    app.listen(PORT, () => {
-      console.log(`🚀 GraphQL server ready at http://localhost:${PORT}/graphql`);
+  console.log('📡 Connecting to MongoDB...');
+  connectToDatabase()
+    .then(() => {
+      console.log('✅ DB connected');
+      app.get('/health', (_, res) => {
+        res.send('✅ Server is running');
+      });
+      app.listen(PORT, () => {
+        console.log(`🚀 GraphQL server ready at http://localhost:${PORT}/graphql`);
+      });
+    })
+    .catch((err) => {
+      console.error('❌ DB connection error:', err.message);
     });
-  });
 }
 
 startApolloServer();
