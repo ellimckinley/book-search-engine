@@ -1,6 +1,8 @@
 # 📚 Book Search Engine
 
 A full-stack MERN application refactored from a RESTful API to use **GraphQL** with **Apollo Server**. Users can search for books via the Google Books API, sign up or log in, and save their favorite reads to a personal library. Originally built as a challenge for the University of Denver Coding Bootcamp.
+[Deployed Application](https://book-search-client.onrender.com)
+[Screenshot](./client/src/assets/Screen%20Shot%202025-05-01%20at%2011.57.37%20PM.png)
 
 ---
 
