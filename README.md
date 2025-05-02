@@ -55,7 +55,7 @@ A full-stack MERN application refactored from a RESTful API to use **GraphQL** w
 
 ---
 
-## Walkthrough Video
+## Walkthrough Video - coming soon!
 
 [🔗 Click here to watch the walkthrough demo](https://your-walkthrough-link.com)
 
