@@ -51,7 +51,7 @@ const resolvers = {
         saveBook: async (
             _parent: unknown,
             args: {
-                bookInput: {
+                bookData: {
                     bookId: string;
                     authors?: string[];
                     description?: string;
@@ -63,12 +63,24 @@ const resolvers = {
             context: AuthContext
         ) => {
             if (!context.user) throw new AuthenticationError('Login required');
-            return await User.findByIdAndUpdate(
-                context.user._id,
-                { $addToSet: { savedBooks: args.bookInput } },
-                { new: true, runValidators: true }
-            );
+
+            console.log('📥 SaveBook args:', args);
+
+            try {
+                const updatedUser = await User.findByIdAndUpdate(
+                    context.user._id,
+                    { $addToSet: { savedBooks: args.bookData } },
+                    { new: true, runValidators: true }
+                );
+
+                console.log('✅ Updated user:', updatedUser);
+                return updatedUser;
+            } catch (err) {
+                console.error('❌ Error saving book:', err);
+                throw new Error('Failed to save book');
+            }
         },
+
 
         removeBook: async (
             _parent: unknown,

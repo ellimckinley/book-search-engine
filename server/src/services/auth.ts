@@ -15,7 +15,7 @@ const expiration = '1h';
 // This gets passed into Apollo Server as context
 export function authMiddleware({ req }: { req: any }) {
   let token = req.headers.authorization || '';
-
+  console.log('🧪 Incoming auth header:', req.headers.authorization);
   if (token.startsWith('Bearer ')) {
     token = token.split(' ')[1];
   }
