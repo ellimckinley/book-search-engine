@@ -1,10 +1,13 @@
 {
   "name": "book-search-engine",
   "version": "1.0.0",
-  "private": true,
   "scripts": {
-    "build": "cd server && npm run build",
-    "start": "cd server && npm start",
-    "dev": "cd server && npm run watch"
+    "install": "npm --prefix client install && npm --prefix server install",
+    "build": "npm run build --prefix client && npm run build --prefix server",
+    "start": "node server/dist/server.js",
+    "develop": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
