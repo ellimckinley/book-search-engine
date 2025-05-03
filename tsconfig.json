@@ -1,31 +1,14 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    /* Language and Environment */
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "skipLibCheck": true,
-    "typeRoots": ["./node_modules/@types"],
+    /* Modules */
+    "rootDir": "src" /* Specify the root folder within your source files. */,
 
-    /* JavaScript Support */
-    "allowJs": true,
-    "checkJs": true,
-
-    /* Interop Constraints */
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-
-    /* Type Checking */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitReturns": true,
-    "noImplicitOverride": true,
-    "useUnknownInCatchVariables": true
+    /* Emit */
+    "outDir": "dist" /* Specify an output folder for all emitted files. */
+    // "noEmitOnError": true /* Disable emitting files if any type checking errors are reported. */
   },
-  "include": ["client", "server"],
-  "exclude": ["node_modules", "dist", "client/dist", "server/dist"]
+  "include": ["src"],
+  "typeRoots": ["./node_modules/@types", "./src/types"],
+    "exclude": ["dist"]
 }
