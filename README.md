@@ -11,7 +11,6 @@ A full-stack MERN application refactored from a RESTful API to use **GraphQL** w
 - [Tech Stack](#-tech-stack)
 - [Features](#-features)
 - [Usage Instructions](#-usage-instructions)
-- [Walkthrough Video](#-walkthrough-video)
 - [License](#-license)
 - [Author](#-author)
 
@@ -54,14 +53,6 @@ A full-stack MERN application refactored from a RESTful API to use **GraphQL** w
    From the root: `npm run develop`
 6. Open the app in browser at `http://localhost:3000`
 7. Use Apollo Sandbox or the frontend UI to interact
-
----
-
-## Walkthrough Video - coming soon!
-
-[🔗 Click here to watch the walkthrough demo](https://your-walkthrough-link.com)
-
-> This demo showcases login/signup, GraphQL mutations and queries, saving/removing books, and Apollo integration.
 
 ---
 
