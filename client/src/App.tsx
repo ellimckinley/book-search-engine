@@ -5,7 +5,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import Navbar from './components/Navbar';
 
 const client = new ApolloClient({
-  uri: 'https://book-search-backend-yjfa.onrender.com', 
+  uri: 'https://book-search-backend-yjfa.onrender.com/graphql', 
   cache: new InMemoryCache(),
 });
 
