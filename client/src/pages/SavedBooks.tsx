@@ -1,73 +1,57 @@
-import { useState, useEffect } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 
-import { getMe, deleteBook } from '../utils/API';
-import Auth from '../utils/auth';
-import { removeBookId } from '../utils/localStorage';
-import type { User } from '../models/User';
+
+import { useQuery, useMutation } from '@apollo/client';
+import { GET_ME } from '../graphql/queries';
+import { REMOVE_BOOK } from '../graphql/mutations';
 
 const SavedBooks = () => {
-  const [userData, setUserData] = useState<User>({
-    username: '',
-    email: '',
-    password: '',
-    savedBooks: [],
-  });
+  const { data, loading, error } = useQuery(GET_ME);
+  const [removeBook] = useMutation(REMOVE_BOOK);
 
-  // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error loading data.</div>;
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const token = Auth.loggedIn() ? Auth.getToken() : null;
+  interface SavedBook {
+    bookId: string;
+    title: string;
+    authors: string[];
+    description: string;
+    image?: string;
+  }
 
-        if (!token) {
-          return false;
-        }
+  interface UserData {
+    username: string;
+    savedBooks: SavedBook[];
+  }
 
-        const response = await getMe(token);
+  const userData: UserData | undefined = data?.me;
 
-        if (!response.ok) {
-          throw new Error('something went wrong!');
-        }
-
-        const user = await response.json();
-        setUserData(user);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    getUserData();
-  }, [userDataLength]);
-
-  // create function that accepts the book's mongo _id value as param and deletes the book from the database
   const handleDeleteBook = async (bookId: string) => {
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-    if (!token) {
-      return false;
-    }
-
     try {
-      const response = await deleteBook(bookId, token);
-
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      const updatedUser = await response.json();
-      setUserData(updatedUser);
-      // upon success, remove book's id from localStorage
-      removeBookId(bookId);
+      await removeBook({
+        variables: { bookId },
+        update: (cache) => {
+          const existing = cache.readQuery<{ me: UserData }>({ query: GET_ME });
+          if (existing?.me?.savedBooks) {
+            cache.writeQuery({
+              query: GET_ME,
+              data: {
+                me: {
+                  ...existing.me,
+                  savedBooks: existing.me.savedBooks.filter((book: SavedBook) => book.bookId !== bookId),
+                },
+              },
+            });
+          }
+        },
+      });
     } catch (err) {
-      console.error(err);
+      console.error('Error in handleDeleteBook:', err);
     }
   };
 
-  // if data isn't here yet, say so
-  if (!userDataLength) {
+  if (!userData) {
     return <h2>LOADING...</h2>;
   }
 
@@ -75,11 +59,12 @@ const SavedBooks = () => {
     <>
       <div className='text-light bg-dark p-5'>
         <Container>
-          {userData.username ? (
+          {userData.username && (
             <h1>Viewing {userData.username}'s saved books!</h1>
-          ) : (
-            <h1>Viewing saved books!</h1>
           )}
+          {/* {userData.savedBooks.map((book: SavedBook) => (
+            <div key={book.bookId}></div>
+          ))} */}
         </Container>
       </div>
       <Container>
@@ -93,15 +78,15 @@ const SavedBooks = () => {
         <Row>
           {userData.savedBooks.map((book) => {
             return (
-              <Col md='4'>
-                <Card key={book.bookId} border='dark'>
-                  {book.image ? (
+              <Col md='4' key={book.bookId}>
+                <Card border='dark'>
+                  {book.image && (
                     <Card.Img
                       src={book.image}
                       alt={`The cover for ${book.title}`}
                       variant='top'
                     />
-                  ) : null}
+                  )}
                   <Card.Body>
                     <Card.Title>{book.title}</Card.Title>
                     <p className='small'>Authors: {book.authors}</p>
